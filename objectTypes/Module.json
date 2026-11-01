@@ -1,0 +1,91 @@
+{
+	"name": "Module",
+	"plugin-id": "Sprite",
+	"sid": 409268651462395,
+	"isGlobal": false,
+	"editorNewInstanceIsReplica": true,
+	"instanceVariables": [],
+	"behaviorTypes": [
+		{
+			"behaviorId": "EightDir",
+			"name": "8Direction",
+			"sid": 241048140548814
+		},
+		{
+			"behaviorId": "scrollto",
+			"name": "ScrollTo",
+			"sid": 602619157996130
+		},
+		{
+			"behaviorId": "bound",
+			"name": "BoundToLayout",
+			"sid": 730874708448395
+		}
+	],
+	"effectTypes": [],
+	"animations": {
+		"items": [
+			{
+				"frames": [
+					{
+						"width": 32,
+						"height": 32,
+						"originX": 0.5,
+						"originY": 0.5,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 1007,
+						"collisionPoly": {
+							"points": [
+								0.9057,
+								0.6087,
+								0.797,
+								0.797,
+								0.6087,
+								0.9057,
+								0.3913,
+								0.9057,
+								0.203,
+								0.797,
+								0.0943,
+								0.6087,
+								0.0943,
+								0.3913,
+								0.203,
+								0.203,
+								0.3913,
+								0.0943,
+								0.6087,
+								0.0943,
+								0.797,
+								0.203,
+								0.9057,
+								0.3913
+							]
+						},
+						"useCollisionPoly": true,
+						"imagePoints": [
+							{
+								"name": "Gun",
+								"x": 0.95,
+								"y": 0.5
+							}
+						],
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 650055762780902,
+				"name": "Default",
+				"isLooping": false,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			}
+		],
+		"subfolders": []
+	}
+}

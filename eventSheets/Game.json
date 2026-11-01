@@ -1,0 +1,195 @@
+{
+	"name": "Game",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "RECOMPILATION — прототип v0.1 (Construct 3)\nУправление: WASD / стрелки — движение, мышь — прицел, ЛКМ (удерживать) — стрельба.\nКамера: поведение ScrollTo у Module (следует за игроком), BoundToLayout не даёт выйти за арену.\nФон: чёрный (цвет фона слоя Game), серая рамка Wall показывает границы арены."
+		},
+		{
+			"eventType": "variable",
+			"name": "FIRE_DELAY",
+			"type": "number",
+			"initialValue": "0.15",
+			"comment": "пауза между выстрелами, с",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 369057214559052
+		},
+		{
+			"eventType": "comment",
+			"text": "■ ДВИЖЕНИЕ\nСтрелки работают через стандартное управление 8Direction, WASD — через Simulate control."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 435120891202008,
+					"parameters": {
+						"key": 87
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Module",
+					"sid": 380106346385118,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "up"
+					}
+				}
+			],
+			"sid": 559895928903076
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 154080148116284,
+					"parameters": {
+						"key": 65
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Module",
+					"sid": 169130080061333,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "left"
+					}
+				}
+			],
+			"sid": 600163746758830
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 476261296209452,
+					"parameters": {
+						"key": 83
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Module",
+					"sid": 648182352360372,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "down"
+					}
+				}
+			],
+			"sid": 307613561556932
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 905501775547279,
+					"parameters": {
+						"key": 68
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Module",
+					"sid": 221472229726462,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "right"
+					}
+				}
+			],
+			"sid": 853750193297806
+		},
+		{
+			"eventType": "comment",
+			"text": "■ СТРЕЛЬБА\nИгрок всегда смотрит на курсор; при зажатой ЛКМ выпускает пулю из точки Gun."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 648646823231590
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "Module",
+					"sid": 759228053248523,
+					"parameters": {
+						"x": "Mouse.X(\"Game\")",
+						"y": "Mouse.Y(\"Game\")"
+					}
+				}
+			],
+			"sid": 911042883502145
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "mouse-button-is-down",
+					"objectClass": "Mouse",
+					"sid": 877213004361093,
+					"parameters": {
+						"mouse-button": "left"
+					}
+				},
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 872866971692107,
+					"parameters": {
+						"interval-seconds": "FIRE_DELAY"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Module",
+					"sid": 704150514163181,
+					"parameters": {
+						"object": "CodeBullet",
+						"layer": "\"Game\"",
+						"image-point": "\"Gun\"",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "CodeBullet",
+					"sid": 827563267767575,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "angle(Module.X, Module.Y, Mouse.X(\"Game\"), Mouse.Y(\"Game\"))"
+					}
+				}
+			],
+			"sid": 765474926776635
+		}
+	],
+	"sid": 336156501430419
+}
