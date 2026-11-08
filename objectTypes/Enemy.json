@@ -1,0 +1,71 @@
+{
+	"name": "Enemy",
+	"plugin-id": "Sprite",
+	"sid": 800000000000005,
+	"isGlobal": false,
+	"editorNewInstanceIsReplica": true,
+	"instanceVariables": [
+		{
+			"name": "Health",
+			"type": "number",
+			"desc": "Запас здоровья паразита.",
+			"show": true,
+			"sid": 800000000000006
+		}
+	],
+	"behaviorTypes": [
+		{
+			"behaviorId": "Bullet",
+			"name": "Bullet",
+			"sid": 800000000000007
+		},
+		{
+			"behaviorId": "Flash",
+			"name": "Flash",
+			"sid": 800000000000008
+		}
+	],
+	"effectTypes": [],
+	"animations": {
+		"items": [
+			{
+				"frames": [
+					{
+						"width": 36,
+						"height": 36,
+						"originX": 0.5,
+						"originY": 0.5,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 1022,
+						"collisionPoly": {
+							"points": [
+								0.15,
+								0.15,
+								0.85,
+								0.15,
+								0.85,
+								0.85,
+								0.15,
+								0.85
+							]
+						},
+						"useCollisionPoly": true,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 800000000000009,
+				"name": "Default",
+				"isLooping": false,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			}
+		],
+		"subfolders": []
+	}
+}

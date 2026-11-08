@@ -1,0 +1,16 @@
+{
+	"name": "HUD",
+	"plugin-id": "Text",
+	"sid": 800000000000010,
+	"isGlobal": false,
+	"editorNewInstanceIsReplica": true,
+	"instanceVariables": [],
+	"behaviorTypes": [
+		{
+			"behaviorId": "Timer",
+			"name": "Timer",
+			"sid": 800000000000011
+		}
+	],
+	"effectTypes": []
+}

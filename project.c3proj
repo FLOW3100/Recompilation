@@ -68,6 +68,27 @@
 			"name": "Следить за",
 			"author": "Scirra",
 			"bundled": false
+		},
+		{
+			"type": "plugin",
+			"id": "Text",
+			"name": "Текст",
+			"author": "Scirra",
+			"bundled": false
+		},
+		{
+			"type": "behavior",
+			"id": "Timer",
+			"name": "Таймер",
+			"author": "Scirra",
+			"bundled": false
+		},
+		{
+			"type": "behavior",
+			"id": "Flash",
+			"name": "Мигание",
+			"author": "Scirra",
+			"bundled": false
 		}
 	],
 	"uniqueId": "vdhlqtuatww",
@@ -77,7 +98,10 @@
 			"Mouse",
 			"Module",
 			"CodeBullet",
-			"Wall"
+			"Wall",
+			"Enemy",
+			"HUD",
+			"Message"
 		],
 		"subfolders": []
 	},
@@ -148,8 +172,8 @@
 		"subfolders": []
 	},
 	"properties": {
-		"description": "Recompilation — первый прототип: управление, камера, стрельба.",
-		"version": "0.1.0.0",
+		"description": "Recompilation — минимальный боевой цикл: волны, контактный урон, смерть и перекомпиляция.",
+		"version": "0.2.0.0",
 		"autoIncrementVersion": false,
 		"author": "",
 		"authorEmail": "",

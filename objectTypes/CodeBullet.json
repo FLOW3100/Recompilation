@@ -4,7 +4,15 @@
 	"sid": 253463867196552,
 	"isGlobal": false,
 	"editorNewInstanceIsReplica": true,
-	"instanceVariables": [],
+	"instanceVariables": [
+		{
+			"name": "Damage",
+			"type": "number",
+			"desc": "Урон одного попадания. После попадания 0: пуля не пробивает толпу.",
+			"show": true,
+			"sid": 800000000000004
+		}
+	],
 	"behaviorTypes": [
 		{
 			"behaviorId": "Bullet",

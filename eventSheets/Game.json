@@ -3,7 +3,7 @@
 	"events": [
 		{
 			"eventType": "comment",
-			"text": "RECOMPILATION — прототип v0.1 (Construct 3)\nУправление: WASD / стрелки — движение, мышь — прицел, ЛКМ (удерживать) — стрельба.\nКамера: поведение ScrollTo у Module (следует за игроком), BoundToLayout не даёт выйти за арену.\nФон: чёрный (цвет фона слоя Game), серая рамка Wall показывает границы арены."
+			"text": "RECOMPILATION v0.2 — боевой цикл без JavaScript.\nWASD / стрелки — движение; мышь — прицел; удержание ЛКМ — огонь.\nRunState: 0 — передышка, 1 — волна, 2 — смерть. Timer у HUD управляет волнами и перекомпиляцией; он переживает уничтожение Module."
 		},
 		{
 			"eventType": "variable",
@@ -16,179 +16,1114 @@
 			"sid": 369057214559052
 		},
 		{
-			"eventType": "comment",
-			"text": "■ ДВИЖЕНИЕ\nСтрелки работают через стандартное управление 8Direction, WASD — через Simulate control."
+			"eventType": "variable",
+			"name": "RunState",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "0: передышка; 1: бой; 2: перекомпиляция.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 800000000000017
 		},
 		{
-			"eventType": "block",
-			"conditions": [
-				{
-					"id": "key-is-down",
-					"objectClass": "Keyboard",
-					"sid": 435120891202008,
-					"parameters": {
-						"key": 87
-					}
-				}
-			],
-			"actions": [
-				{
-					"id": "simulate-control",
-					"objectClass": "Module",
-					"sid": 380106346385118,
-					"behaviorType": "8Direction",
-					"parameters": {
-						"control": "up"
-					}
-				}
-			],
-			"sid": 559895928903076
+			"eventType": "variable",
+			"name": "Wave",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Номер волны в текущем забеге.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 800000000000018
 		},
 		{
-			"eventType": "block",
-			"conditions": [
-				{
-					"id": "key-is-down",
-					"objectClass": "Keyboard",
-					"sid": 154080148116284,
-					"parameters": {
-						"key": 65
-					}
-				}
-			],
-			"actions": [
-				{
-					"id": "simulate-control",
-					"objectClass": "Module",
-					"sid": 169130080061333,
-					"behaviorType": "8Direction",
-					"parameters": {
-						"control": "left"
-					}
-				}
-			],
-			"sid": 600163746758830
+			"eventType": "variable",
+			"name": "SpawnRemaining",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Сколько паразитов ещё появится в этой волне.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 800000000000019
 		},
 		{
-			"eventType": "block",
-			"conditions": [
-				{
-					"id": "key-is-down",
-					"objectClass": "Keyboard",
-					"sid": 476261296209452,
-					"parameters": {
-						"key": 83
-					}
-				}
-			],
-			"actions": [
-				{
-					"id": "simulate-control",
-					"objectClass": "Module",
-					"sid": 648182352360372,
-					"behaviorType": "8Direction",
-					"parameters": {
-						"control": "down"
-					}
-				}
-			],
-			"sid": 307613561556932
+			"eventType": "variable",
+			"name": "Kills",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Уничтожено паразитов в текущем забеге.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 800000000000020
 		},
 		{
-			"eventType": "block",
-			"conditions": [
-				{
-					"id": "key-is-down",
-					"objectClass": "Keyboard",
-					"sid": 905501775547279,
-					"parameters": {
-						"key": 68
-					}
-				}
-			],
-			"actions": [
-				{
-					"id": "simulate-control",
-					"objectClass": "Module",
-					"sid": 221472229726462,
-					"behaviorType": "8Direction",
-					"parameters": {
-						"control": "right"
-					}
-				}
-			],
-			"sid": 853750193297806
+			"eventType": "variable",
+			"name": "Build",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "Номер забега; сохраняется при Restart layout.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 800000000000021
+		},
+		{
+			"eventType": "variable",
+			"name": "SpawnSide",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Временная сторона появления: 0/1 — горизонталь, 2/3 — вертикаль.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 800000000000022
+		},
+		{
+			"eventType": "variable",
+			"name": "CONTACT_DAMAGE",
+			"type": "number",
+			"initialValue": "10",
+			"comment": "Контактный урон паразита.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 800000000000023
+		},
+		{
+			"eventType": "variable",
+			"name": "HIT_GRACE",
+			"type": "number",
+			"initialValue": "0.75",
+			"comment": "Пауза между получением урона; Flash показывает неуязвимость.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 800000000000024
 		},
 		{
 			"eventType": "comment",
-			"text": "■ СТРЕЛЬБА\nИгрок всегда смотрит на курсор; при зажатой ЛКМ выпускает пулю из точки Gun."
+			"text": "ИНИЦИАЛИЗАЦИЯ\nВынесенные за арену Enemy и CodeBullet задают параметры создаваемых экземпляров. Удаляем их до начала волны."
 		},
 		{
 			"eventType": "block",
 			"conditions": [
 				{
-					"id": "every-tick",
+					"id": "on-start-of-layout",
 					"objectClass": "System",
-					"sid": 648646823231590
+					"sid": 800000000000025
 				}
 			],
 			"actions": [
 				{
-					"id": "set-angle-toward-position",
-					"objectClass": "Module",
-					"sid": 759228053248523,
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 800000000000026,
 					"parameters": {
-						"x": "Mouse.X(\"Game\")",
-						"y": "Mouse.Y(\"Game\")"
-					}
-				}
-			],
-			"sid": 911042883502145
-		},
-		{
-			"eventType": "block",
-			"conditions": [
-				{
-					"id": "mouse-button-is-down",
-					"objectClass": "Mouse",
-					"sid": 877213004361093,
-					"parameters": {
-						"mouse-button": "left"
+						"variable": "RunState",
+						"value": "0"
 					}
 				},
 				{
-					"id": "every-x-seconds",
+					"id": "set-eventvar-value",
 					"objectClass": "System",
-					"sid": 872866971692107,
+					"sid": 800000000000027,
 					"parameters": {
-						"interval-seconds": "FIRE_DELAY"
+						"variable": "Wave",
+						"value": "0"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 800000000000028,
+					"parameters": {
+						"variable": "SpawnRemaining",
+						"value": "0"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 800000000000029,
+					"parameters": {
+						"variable": "Kills",
+						"value": "0"
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Enemy",
+					"sid": 800000000000030
+				},
+				{
+					"id": "destroy",
+					"objectClass": "CodeBullet",
+					"sid": 800000000000031
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Message",
+					"sid": 800000000000032,
+					"parameters": {
+						"text": "\"Компиляция Модуля...\""
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "HUD",
+					"sid": 800000000000033,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "1",
+						"type": "once",
+						"tag": "\"NextWave\""
+					}
+				}
+			],
+			"sid": 800000000000034
+		},
+		{
+			"eventType": "comment",
+			"text": "ВОЛНЫ\nКонечная очередь: 6 врагов в первой волне, +2 за волну (до 24). Следующая начинается только после уничтожения всех врагов. HP и скорость плавно растут до десятой прибавки."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "HUD",
+					"sid": 800000000000035,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"NextWave\""
+					}
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000036,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 0,
+						"value": "0"
 					}
 				}
 			],
 			"actions": [
 				{
-					"id": "spawn-another-object",
-					"objectClass": "Module",
-					"sid": 704150514163181,
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000037,
 					"parameters": {
-						"object": "CodeBullet",
+						"variable": "Wave",
+						"value": "1"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 800000000000038,
+					"parameters": {
+						"variable": "RunState",
+						"value": "1"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 800000000000039,
+					"parameters": {
+						"variable": "SpawnRemaining",
+						"value": "min(6 + (Wave - 1) * 2, 24)"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Message",
+					"sid": 800000000000040,
+					"parameters": {
+						"text": "\"\""
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "HUD",
+					"sid": 800000000000041,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "0.8",
+						"type": "regular",
+						"tag": "\"Spawn\""
+					}
+				}
+			],
+			"sid": 800000000000042
+		},
+		{
+			"eventType": "comment",
+			"text": "ПОЯВЛЕНИЕ ЗА ЭКРАНОМ\nОтступ 48 px, радиус врага 18 px. Если выбранный край экрана упирается в границу арены, используем противоположный край."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "HUD",
+					"sid": 800000000000055,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Spawn\""
+					}
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000056,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 0,
+						"value": "1"
+					}
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000057,
+					"parameters": {
+						"variable": "SpawnRemaining",
+						"comparison": 4,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 800000000000058,
+					"parameters": {
+						"variable": "SpawnSide",
+						"value": "floor(random(4))"
+					}
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 800000000000059,
+					"parameters": {
+						"object-to-create": "Enemy",
 						"layer": "\"Game\"",
-						"image-point": "\"Gun\"",
+						"x": "-300",
+						"y": "-300",
 						"create-hierarchy": false,
 						"template-name": "\"\""
 					}
 				},
 				{
-					"id": "set-angle-of-motion",
-					"objectClass": "CodeBullet",
-					"sid": 827563267767575,
+					"id": "set-instvar-value",
+					"objectClass": "Enemy",
+					"sid": 800000000000060,
+					"parameters": {
+						"instance-variable": "Health",
+						"value": "30 + min(Wave - 1, 10) * 5"
+					}
+				},
+				{
+					"id": "set-speed",
+					"objectClass": "Enemy",
+					"sid": 800000000000061,
 					"behaviorType": "Bullet",
 					"parameters": {
-						"angle": "angle(Module.X, Module.Y, Mouse.X(\"Game\"), Mouse.Y(\"Game\"))"
+						"speed": "110 + min(Wave - 1, 10) * 5"
+					}
+				},
+				{
+					"id": "subtract-from-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000062,
+					"parameters": {
+						"variable": "SpawnRemaining",
+						"value": "1"
 					}
 				}
 			],
-			"sid": 765474926776635
+			"sid": 800000000000063,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 800000000000043,
+							"parameters": {
+								"variable": "SpawnSide",
+								"comparison": 0,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Enemy",
+							"sid": 800000000000044,
+							"parameters": {
+								"x": "ViewportLeft(\"Game\") > 80 ? ViewportLeft(\"Game\") - 48 : ViewportRight(\"Game\") + 48",
+								"y": "random(ViewportTop(\"Game\") + 32, ViewportBottom(\"Game\") - 32)"
+							}
+						}
+					],
+					"sid": 800000000000045
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 800000000000046,
+							"parameters": {
+								"variable": "SpawnSide",
+								"comparison": 0,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Enemy",
+							"sid": 800000000000047,
+							"parameters": {
+								"x": "ViewportRight(\"Game\") < LayoutWidth - 80 ? ViewportRight(\"Game\") + 48 : ViewportLeft(\"Game\") - 48",
+								"y": "random(ViewportTop(\"Game\") + 32, ViewportBottom(\"Game\") - 32)"
+							}
+						}
+					],
+					"sid": 800000000000048
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 800000000000049,
+							"parameters": {
+								"variable": "SpawnSide",
+								"comparison": 0,
+								"value": "2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Enemy",
+							"sid": 800000000000050,
+							"parameters": {
+								"x": "random(ViewportLeft(\"Game\") + 32, ViewportRight(\"Game\") - 32)",
+								"y": "ViewportTop(\"Game\") > 80 ? ViewportTop(\"Game\") - 48 : ViewportBottom(\"Game\") + 48"
+							}
+						}
+					],
+					"sid": 800000000000051
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 800000000000052,
+							"parameters": {
+								"variable": "SpawnSide",
+								"comparison": 0,
+								"value": "3"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Enemy",
+							"sid": 800000000000053,
+							"parameters": {
+								"x": "random(ViewportLeft(\"Game\") + 32, ViewportRight(\"Game\") - 32)",
+								"y": "ViewportBottom(\"Game\") < LayoutHeight - 80 ? ViewportBottom(\"Game\") + 48 : ViewportTop(\"Game\") - 48"
+							}
+						}
+					],
+					"sid": 800000000000054
+				}
+			]
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000064,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 1,
+						"value": "2"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 800000000000065,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "ДВИЖЕНИЕ: стандартные стрелки 8Direction и симуляция WASD."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 435120891202008,
+							"parameters": {
+								"key": 87
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Module",
+							"sid": 380106346385118,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"control": "up"
+							}
+						}
+					],
+					"sid": 559895928903076
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 154080148116284,
+							"parameters": {
+								"key": 65
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Module",
+							"sid": 169130080061333,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"control": "left"
+							}
+						}
+					],
+					"sid": 600163746758830
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 476261296209452,
+							"parameters": {
+								"key": 83
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Module",
+							"sid": 648182352360372,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"control": "down"
+							}
+						}
+					],
+					"sid": 307613561556932
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 905501775547279,
+							"parameters": {
+								"key": 68
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Module",
+							"sid": 221472229726462,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"control": "right"
+							}
+						}
+					],
+					"sid": 853750193297806
+				},
+				{
+					"eventType": "comment",
+					"text": "СТРЕЛЬБА: поворот к мыши, создание CodeBullet из точки Gun."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 648646823231590
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "Module",
+							"sid": 759228053248523,
+							"parameters": {
+								"x": "Mouse.X(\"Game\")",
+								"y": "Mouse.Y(\"Game\")"
+							}
+						}
+					],
+					"sid": 911042883502145
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "mouse-button-is-down",
+							"objectClass": "Mouse",
+							"sid": 877213004361093,
+							"parameters": {
+								"mouse-button": "left"
+							}
+						},
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 872866971692107,
+							"parameters": {
+								"interval-seconds": "FIRE_DELAY"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Module",
+							"sid": 704150514163181,
+							"parameters": {
+								"object": "CodeBullet",
+								"layer": "\"Game\"",
+								"image-point": "\"Gun\"",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "CodeBullet",
+							"sid": 827563267767575,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "angle(Module.X, Module.Y, Mouse.X(\"Game\"), Mouse.Y(\"Game\"))"
+							}
+						}
+					],
+					"sid": 765474926776635
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "ПРЕСЛЕДОВАНИЕ\nFor each нужен, чтобы каждый Bullet получал направление от своего Enemy к Модулю."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000066,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 0,
+						"value": "1"
+					}
+				},
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 800000000000067,
+					"parameters": {
+						"object": "Enemy"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "Enemy",
+					"sid": 800000000000068,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "angle(Enemy.X, Enemy.Y, Module.X, Module.Y)"
+					}
+				}
+			],
+			"sid": 800000000000069
+		},
+		{
+			"eventType": "comment",
+			"text": "УРОН ПАРАЗИТАМ\nПуля расходуется после одного попадания. Damage = 0 предотвращает повторное попадание той же пули в перекрывающихся врагов."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "CodeBullet",
+					"sid": 800000000000070,
+					"parameters": {
+						"object": "Enemy"
+					}
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000071,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 0,
+						"value": "1"
+					}
+				},
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "CodeBullet",
+					"sid": 800000000000072,
+					"parameters": {
+						"instance-variable": "Damage",
+						"comparison": 4,
+						"value": "0"
+					}
+				},
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "Enemy",
+					"sid": 800000000000073,
+					"parameters": {
+						"instance-variable": "Health",
+						"comparison": 4,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "subtract-from-instvar",
+					"objectClass": "Enemy",
+					"sid": 800000000000074,
+					"parameters": {
+						"instance-variable": "Health",
+						"value": "CodeBullet.Damage"
+					}
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "CodeBullet",
+					"sid": 800000000000075,
+					"parameters": {
+						"instance-variable": "Damage",
+						"value": "0"
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "CodeBullet",
+					"sid": 800000000000076
+				},
+				{
+					"id": "flash",
+					"objectClass": "Enemy",
+					"sid": 800000000000077,
+					"behaviorType": "Flash",
+					"parameters": {
+						"on-time": "0.04",
+						"off-time": "0.04",
+						"duration": "0.12"
+					}
+				}
+			],
+			"sid": 800000000000078
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 800000000000079,
+					"parameters": {
+						"object": "Enemy"
+					}
+				},
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "Enemy",
+					"sid": 800000000000080,
+					"parameters": {
+						"instance-variable": "Health",
+						"comparison": 3,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000081,
+					"parameters": {
+						"variable": "Kills",
+						"value": "1"
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Enemy",
+					"sid": 800000000000082
+				}
+			],
+			"sid": 800000000000083
+		},
+		{
+			"eventType": "comment",
+			"text": "КОНТАКТНАЯ АТАКА\nOverlap, а не On collision: враг продолжает атаковать, если стоит на Модуле. Общий таймер неуязвимости защищает от мгновенной смерти в толпе."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000084,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 0,
+						"value": "1"
+					}
+				},
+				{
+					"id": "is-overlapping-another-object",
+					"objectClass": "Module",
+					"sid": 800000000000085,
+					"parameters": {
+						"object": "Enemy"
+					}
+				},
+				{
+					"id": "is-timer-running",
+					"objectClass": "Module",
+					"sid": 800000000000086,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Invulnerable\""
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Module",
+					"sid": 800000000000087,
+					"parameters": {
+						"instance-variable": "Health",
+						"value": "max(0, Module.Health - CONTACT_DAMAGE)"
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "Module",
+					"sid": 800000000000088,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "HIT_GRACE",
+						"type": "once",
+						"tag": "\"Invulnerable\""
+					}
+				},
+				{
+					"id": "flash",
+					"objectClass": "Module",
+					"sid": 800000000000089,
+					"behaviorType": "Flash",
+					"parameters": {
+						"on-time": "0.08",
+						"off-time": "0.06",
+						"duration": "HIT_GRACE"
+					}
+				}
+			],
+			"sid": 800000000000090
+		},
+		{
+			"eventType": "comment",
+			"text": "СМЕРТЬ И ПЕРЕКОМПИЛЯЦИЯ\nУничтожаем игрока, прекращаем огонь и появление врагов, останавливаем паразитов. Через 2.5 секунды Restart layout восстанавливает чистый забег; Build сохраняется."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000091,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 1,
+						"value": "2"
+					}
+				},
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "Module",
+					"sid": 800000000000092,
+					"parameters": {
+						"instance-variable": "Health",
+						"comparison": 3,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 800000000000093,
+					"parameters": {
+						"variable": "RunState",
+						"value": "2"
+					}
+				},
+				{
+					"id": "stop-all-timers",
+					"objectClass": "HUD",
+					"sid": 800000000000094,
+					"behaviorType": "Timer"
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "Enemy",
+					"sid": 800000000000095,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"state": "disabled"
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "CodeBullet",
+					"sid": 800000000000096
+				},
+				{
+					"id": "set-text",
+					"objectClass": "HUD",
+					"sid": 800000000000097,
+					"parameters": {
+						"text": "\"Целостность: 0 / 100   |   Сборка: \" & Build & \"   |   Волна: \" & Wave & \"   |   Уничтожено: \" & Kills"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Message",
+					"sid": 800000000000098,
+					"parameters": {
+						"text": "\"Модуль разрушен\" & newline & \"Перекомпиляция через 2.5 с...\""
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Module",
+					"sid": 800000000000099
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "HUD",
+					"sid": 800000000000100,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "2.5",
+						"type": "once",
+						"tag": "\"Recompile\""
+					}
+				}
+			],
+			"sid": 800000000000101
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "HUD",
+					"sid": 800000000000102,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Recompile\""
+					}
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000103,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 0,
+						"value": "2"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000104,
+					"parameters": {
+						"variable": "Build",
+						"value": "1"
+					}
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 800000000000105
+				}
+			],
+			"sid": 800000000000106
+		},
+		{
+			"eventType": "comment",
+			"text": "ЗАВЕРШЕНИЕ ВОЛНЫ\nПустая арена во время появления врагов не считается победой: должна закончиться и очередь SpawnRemaining."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000107,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 0,
+						"value": "1"
+					}
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000108,
+					"parameters": {
+						"variable": "SpawnRemaining",
+						"comparison": 0,
+						"value": "0"
+					}
+				},
+				{
+					"id": "compare-two-values",
+					"objectClass": "System",
+					"sid": 800000000000109,
+					"parameters": {
+						"first-value": "Enemy.Count",
+						"comparison": 0,
+						"second-value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 800000000000110,
+					"parameters": {
+						"variable": "RunState",
+						"value": "0"
+					}
+				},
+				{
+					"id": "stop-timer",
+					"objectClass": "HUD",
+					"sid": 800000000000111,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Spawn\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Message",
+					"sid": 800000000000112,
+					"parameters": {
+						"text": "\"Волна \" & Wave & \" зачищена\" & newline & \"Следующая через 2 с\""
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "HUD",
+					"sid": 800000000000113,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "2",
+						"type": "once",
+						"tag": "\"NextWave\""
+					}
+				}
+			],
+			"sid": 800000000000114
+		},
+		{
+			"eventType": "comment",
+			"text": "ИНТЕРФЕЙС\nСлой UI с параллаксом 0,0 остаётся на экране при движении камеры."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 800000000000115,
+					"parameters": {
+						"variable": "RunState",
+						"comparison": 1,
+						"value": "2"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "HUD",
+					"sid": 800000000000116,
+					"parameters": {
+						"text": "\"Целостность: \" & Module.Health & \" / 100   |   Сборка: \" & Build & \"   |   Волна: \" & Wave & \"   |   Врагов: \" & (Enemy.Count + SpawnRemaining) & \"   |   Уничтожено: \" & Kills & newline & \"WASD / стрелки — движение; мышь — прицел; ЛКМ — огонь\""
+					}
+				}
+			],
+			"sid": 800000000000117
 		}
 	],
 	"sid": 336156501430419

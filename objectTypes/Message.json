@@ -1,0 +1,10 @@
+{
+	"name": "Message",
+	"plugin-id": "Text",
+	"sid": 800000000000012,
+	"isGlobal": false,
+	"editorNewInstanceIsReplica": true,
+	"instanceVariables": [],
+	"behaviorTypes": [],
+	"effectTypes": []
+}
