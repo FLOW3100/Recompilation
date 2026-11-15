@@ -89,6 +89,13 @@
 			"name": "Мигание",
 			"author": "Scirra",
 			"bundled": false
+		},
+		{
+			"type": "behavior",
+			"id": "Sin",
+			"name": "Синусоида",
+			"author": "Scirra",
+			"bundled": false
 		}
 	],
 	"uniqueId": "vdhlqtuatww",
@@ -101,7 +108,12 @@
 			"Wall",
 			"Enemy",
 			"HUD",
-			"Message"
+			"Message",
+			"XPShard",
+			"Card",
+			"ChoiceUI",
+			"BarBack",
+			"BarFill"
 		],
 		"subfolders": []
 	},
@@ -172,8 +184,8 @@
 		"subfolders": []
 	},
 	"properties": {
-		"description": "Recompilation — минимальный боевой цикл: волны, контактный урон, смерть и перекомпиляция.",
-		"version": "0.2.0.0",
+		"description": "Recompilation - главный игровой цикл по ГДД 1.2: волны, четыре типа паразитов, куски опыта, версии Модуля с выбором улучшений, целостность, шкала очистки, перекомпиляция.",
+		"version": "0.3.0.0",
 		"autoIncrementVersion": false,
 		"author": "",
 		"authorEmail": "",
